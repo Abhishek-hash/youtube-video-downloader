@@ -1,0 +1,53 @@
+import os
+import subprocess
+import sys
+
+def download_playlist(url, folder_path, resolution):
+    # Ensure the folder exists
+    if not os.path.exists(folder_path):
+        os.makedirs(folder_path)
+
+    # yt-dlp command
+    command = [
+        'yt-dlp',
+        '-f', f'bv*[height={resolution}]+ba/b',  # Download video + audio with given resolution
+        '--merge-output-format', 'mp4',           # Merge formats into MP4
+        '--yes-playlist',                         # Download full playlist
+        url,
+        '-o', os.path.join(folder_path, '%(title)s.%(ext)s')  # File naming pattern
+    ]
+
+    # Run command
+    try:
+        subprocess.run(command, check=True)
+        print("\n✅ Playlist downloaded successfully!")
+    except subprocess.CalledProcessError:
+        print("\n❌ Error: Failed to download playlist.")
+    except Exception as e:
+        print(f"\n❌ Error: {e}")
+
+def main():
+    print("🎯 YouTube Playlist Downloader")
+
+    # Step 1: Folder selection
+    folder_path = input("Enter folder path to save videos (leave empty for current folder): ").strip()
+    if not folder_path:
+        folder_path = os.getcwd()  # Default to current folder
+
+    # Step 2: Playlist URL
+    playlist_url = input("Paste the YouTube playlist URL here: ").strip()
+    if not playlist_url:
+        print("❌ Error: Playlist URL is required.")
+        sys.exit(1)
+
+    # Step 3: Resolution input
+    resolution = input("Enter desired resolution (e.g., 480, 720, 1080, 1440): ").strip()
+    if not resolution.isdigit():
+        print("❌ Error: Resolution must be a valid number.")
+        sys.exit(1)
+
+    # Download playlist
+    download_playlist(playlist_url, folder_path, resolution)
+
+if __name__ == "__main__":
+    main()
